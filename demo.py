@@ -1,7 +1,4 @@
-
-
 import ast
-
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix, classification_report
@@ -85,18 +82,12 @@ card_dict = {'Archers': 3,
              'The Log': 2,
              'Cannon Cart': 5}
 
-card_dict_list = []
-
-for key in card_dict.keys():
-    card_dict_list.append(key)
+card_dict_list = list(card_dict.keys())
 
 # mirror card takes elixir : +1 previous card elixir
 # so we put average + 1 for mirror
 
-sume = 0
-for value in card_dict.values():
-    sume += value
-avg = sume / len(card_dict)
+avg = sum(card_dict.values()) / len(card_dict)
 card_dict['Mirror'] = int(avg + 1)
 
 file = open('matches.txt', encoding='utf-8')
@@ -108,12 +99,8 @@ del raw_data[200000:]
 del raw_data[0:100000]
 # too many rows to handle, deleting some
 
-
 print(len(raw_data))
-data_dict = []
-
-for row in raw_data:
-    data_dict.append(ast.literal_eval(row))
+data_dict = [ast.literal_eval(row) for row in raw_data]
 
 # removing unwanted data
 # adding trophy difference
@@ -144,7 +131,6 @@ for row in data_dict:
 # simplifying result
 # 0->draw; 1-> right win; 2-> left win
 
-
 for row in data_dict:
     if row['result'][0] > row['result'][1]:
         row['result'] = str(1)
@@ -167,20 +153,9 @@ for row in data_dict:
 
     row['avg_level_diff'] = str(sum_right / 8 - sum_left / 8)
 
-# s = 0
-# for row in data_dict:
-#  if float(row['avg_level_diff']) < 0 and row['result'] == '1':
-#    s += 1
-
-# print(s / len(data_dict))
-
-
 for row in data_dict:
-    temp1 = []
-    temp2 = []
-    for i in range(0, card_dict_list.__len__()):
-        temp1.append(0)
-        temp2.append(0)
+    temp1 = [0] * card_dict_list.__len__()
+    temp2 = [0] * card_dict_list.__len__()
 
     for card in row['players']['right']['deck']:
         temp1[card_dict_list.index(card[0])] = card[1]
@@ -218,8 +193,8 @@ classifier.fit(X_train, Y_train)
 
 pred = classifier.predict(X_test)
 
-cm = confusion_matrix(Y_test, pred)
-print(cm)
+conf_matrix = confusion_matrix(Y_test, pred)
+print(conf_matrix)
 
 print(classifier.score(X_test, Y_test))
 print(classification_report(Y_test, pred))
@@ -232,7 +207,7 @@ test_scores_mean = np.mean(test_scores, axis=1)
 test_scores_std = np.std(test_scores, axis=1)
 
 plt.figure()
-plt.title("RandomForestClassifier")
+plt.title("Logistic Regression")
 plt.legend(loc="best")
 plt.xlabel("Training examples")
 plt.ylabel("Score")
